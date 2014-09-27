@@ -30,7 +30,8 @@
   [tweets]
   [:html
     [:head
-      [:title "Houston we have a problem"]]
+      [:title "Houston we have a problem"]
+      (include-js "/js/main.js")]
     [:body
       [:h1 "Orbiting News"]
       [:h2 "Houston we have a problem"]
@@ -44,7 +45,9 @@
 
 (defroutes app-routes
   (GET "/" [] root-handler)
-  (GET "/ws" [] handler))
+  (GET "/ws" [] handler)
+  (route/resources "/")
+  (route/not-found "Page not found"))
 
 (def ^:dynamic *server-port*
     (Integer/parseInt (config/env "SERVER_PORT")))

@@ -1,12 +1,30 @@
 (ns orbitingnews.core
   (:use compojure.core)
   (:use org.httpkit.server)
+  (:use org.httpkit.timer)
   (:require [org.httpkit.client :as http]
             [compojure.route :as route]
             [orbitingnews.config :as config]
             [orbitingnews.twitter :as twitter]
             [hiccup.core :as dom])
   (:gen-class))
+
+(defn handler [req]
+  (with-channel req channel              ; get the channel
+    ;; communicate with client using method defined above
+    (on-close channel (fn [status]
+                        (println "channel closed, " status)))
+
+    (if (websocket? channel)
+      (println "WebSocket channel")
+      (println "HTTP channel"))
+
+    (on-receive channel (fn [data]       ; data received from client
+                          ;; An optional param can pass to send!: close-after-send?
+                          ;; When unspecified, `close-after-send?` defaults to true for HTTP channels
+                          ;; and false for WebSocket.  (send! channel data close-after-send?)
+                          (send! channel data))))) ; data is sent directly to the client
+
 
 (defn tweets-page
   [tweets]
@@ -25,7 +43,8 @@
     (dom/html (tweets-page tweets))))
 
 (defroutes app-routes
-  (GET "/" [] root-handler))
+  (GET "/" [] root-handler)
+  (GET "/ws" [] handler))
 
 (def ^:dynamic *server-port*
     (Integer/parseInt (config/env "SERVER_PORT")))

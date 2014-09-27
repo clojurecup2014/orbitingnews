@@ -9,7 +9,7 @@
             [orbitingnews.twitter :as twitter]
             [hiccup.core :as dom]
             [hiccup.page :as page]
-            [clojure.core.async :as async :refer :all]
+            [clojure.core.async :as async :refer [<! >! chan go put! alts! take!]]
             [cognitect.transit :as transit])
   (:gen-class))
 

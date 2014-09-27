@@ -8,4 +8,5 @@
                  [http-kit "2.1.16"]
                  [cheshire "5.3.1"]
                  [compojure "1.1.8"]
-                 [ring/ring-defaults "0.1.1"]])
+                 [ring/ring-defaults "0.1.1"]]
+  :main orbitingnews.core)

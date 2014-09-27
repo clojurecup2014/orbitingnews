@@ -2,6 +2,7 @@
   (:use compojure.core)
   (:use org.httpkit.server)
   (:use org.httpkit.timer)
+  (:use hiccup.core)
   (:require [org.httpkit.client :as http]
             [compojure.route :as route]
             [orbitingnews.config :as config]
@@ -41,6 +42,10 @@
 (defn root-handler [req]
   (let [tweets (map #(.getText %) (twitter/search "#clojurecup"))]
     (dom/html (tweets-page tweets))))
+
+(defn home []
+  (html [:span {:class "foo"} "bar"])
+)
 
 (defroutes app-routes
   (GET "/" [] root-handler)

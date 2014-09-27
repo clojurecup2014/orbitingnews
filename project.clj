@@ -13,6 +13,7 @@
                  [org.twitter4j/twitter4j-core "4.0.2"]
                  [hiccup "1.0.5"]
                  [com.cognitect/transit-clj "0.8.259"]
+                 [com.cognitect/transit-cljs "0.8.188"]
                  [org.clojure/clojurescript "0.0-2356"]]
   :cljsbuild {
     :builds [{:source-paths ["src/cljs"]

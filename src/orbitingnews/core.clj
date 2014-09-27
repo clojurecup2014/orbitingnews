@@ -6,7 +6,8 @@
             [compojure.route :as route]
             [orbitingnews.config :as config]
             [orbitingnews.twitter :as twitter]
-            [hiccup.core :as dom])
+            [hiccup.core :as dom]
+            [hiccup.page :as page])
   (:gen-class))
 
 (defn handler [req]
@@ -31,7 +32,7 @@
   [:html
     [:head
       [:title "Houston we have a problem"]
-      (include-js "/js/main.js")]
+      (page/include-js "/js/main.js")]
     [:body
       [:h1 "Orbiting News"]
       [:h2 "Houston we have a problem"]

@@ -8,6 +8,8 @@
                  [http-kit "2.1.16"]
                  [cheshire "5.3.1"]
                  [compojure "1.1.8"]
-                 [ring/ring-defaults "0.1.1"]]
+                 [ring/ring-defaults "0.1.1"]
+                 [org.twitter4j/twitter4j-core "4.0.2"]
+                 [hiccup "1.0.5"]]
   :main orbitingnews.core
   :aot [orbitingnews.core])

@@ -11,6 +11,7 @@
                  [compojure "1.1.8"]
                  [ring/ring-defaults "0.1.1"]
                  [org.twitter4j/twitter4j-core "4.0.2"]
+                 [org.twitter4j/twitter4j-stream "4.0.2"]
                  [hiccup "1.0.5"]
                  [org.clojure/clojurescript "0.0-2356"]]
   :cljsbuild {

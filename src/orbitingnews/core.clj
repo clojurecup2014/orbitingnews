@@ -16,12 +16,12 @@
     [:body
       [:h1 "Orbiting News"]
       [:h2 "Houston we have a problem"]
-      [:img {:src "https://earthkam.ucsd.edu/images/iss-future.jpg"}]
+      [:img {:src "https://earthkam.ucsd.edu/images/iss-future.jpg" :width "20%"}]
       (for [tweet tweets]
         [:p tweet])]])
 
 (defn root-handler [req]
-  (let [tweets (map #(str "<li>" (.getText %) "</li>") (twitter/search "#clojurecup"))]
+  (let [tweets (map #(.getText %) (twitter/search "#clojurecup"))]
     (dom/html (tweets-page tweets))))
 
 (defroutes app-routes

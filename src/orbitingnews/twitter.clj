@@ -1,6 +1,6 @@
 (ns orbitingnews.twitter
   (:require [orbitingnews.config :as config])
-  (:import [twitter4j TwitterFactory TwitterStreamFactory StatusListener Query QueryResult FilterQuery]
+  (:import [twitter4j TwitterFactory TwitterStreamFactory StatusListener UserStreamListener Query QueryResult FilterQuery]
            [twitter4j.auth AccessToken])
   (:gen-class))
 
@@ -38,6 +38,30 @@
     (onScrubGeo [userId upToStatusId] ())
     (onTrackLimitationNotice [numberOfLimitedStatuses] ())))
 
+(defn user-listener []
+  "Implementation of twitter4j's StatusListener interface"
+  (proxy [UserStreamListener] []
+    (onStatus [^twitter4j.Status status] (println (.getText status)))
+    (onException [^java.lang.Exception e] (.printStackTrace e))
+    (onDeletionNotice [^twitter4j.StatusDeletionNotice statusDeletionNotice] ())
+    (onScrubGeo [userId upToStatusId] ())
+    (onTrackLimitationNotice [numberOfLimitedStatuses] ())
+    (onBlock [source blockedUser] ())
+    (onDirectMessage [dm] ())
+    (onFavorite [source target favorited-status] ())
+    (onFollow [source followed] ())
+    (onFriendList [friends] ())
+    (onUnblock [source unblocked] ())
+    (onUnfavorite [source target status] ())
+    (onUserListCreation [owner user-list] ())
+    (onUserListDeletion [listOwner ll] ())
+    (onUserListMemberAddition [addedMember listOwner ll] ())
+    (onUserListMemberDeletion [deletedMember listOwner ll] ())
+    (onUserListSubscription [subscriber listOwner ll] ())
+    (onUserListUnsubscription [subscriber listOwner ll] ())
+    (onUserListUpdate [listOwner UserList ll] ())
+    (onUserProfileUpdate [User updatedUser] ())))
+
 (defn do-sample-stream []
   (let [stream (oauth-stream-authorized-twitter)]
     (.addListener stream (status-listener))
@@ -50,10 +74,10 @@
     (.addListener stream (status-listener))
     (.filter stream filter-query)))
 
-(defn link-stream []
+(defn user-stream []
   (let [stream (oauth-stream-authorized-twitter)]
-    (.addListener stream (status-listener))
-    (.links stream 0)))
+    (.addListener stream (user-listener))
+    (.user stream)))
 
 (defn search
   "Returns tweets from search"

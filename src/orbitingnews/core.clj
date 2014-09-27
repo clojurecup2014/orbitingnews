@@ -7,7 +7,8 @@
             [orbitingnews.config :as config]
             [orbitingnews.twitter :as twitter]
             [hiccup.core :as dom]
-            [hiccup.page :as page])
+            [hiccup.page :as page]
+            [clojure.core.async :as async :refer :all])
   (:gen-class))
 
 (defn handler [req]

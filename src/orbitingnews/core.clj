@@ -2,7 +2,8 @@
   (:use compojure.core)
   (:use org.httpkit.server)
   (:require [org.httpkit.client :as http]
-            [compojure.route :as route]))
+            [compojure.route :as route])
+  (:gen-class))
 
 (defroutes app-routes
   (GET "/" [] "<html><body>Houston we have a problem<br><img src='https://earthkam.ucsd.edu/images/iss-future.jpg'></body></html>"))

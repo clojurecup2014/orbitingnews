@@ -1,6 +1,6 @@
 (ns orbitingnews.twitter
   (:require [orbitingnews.config :as config])
-  (:import [twitter4j TwitterFactory TwitterStreamFactory StreamListener StatusListener Query QueryResult FilterQuery]
+  (:import [twitter4j TwitterFactory TwitterStreamFactory StatusListener Query QueryResult FilterQuery]
            [twitter4j.auth AccessToken])
   (:gen-class))
 
@@ -19,7 +19,7 @@
       (.setOAuthAccessToken access-token))
     twitter))
 
-(defn- oauth-stream
+(defn- oauth-stream-authorized-twitter
   "Create a twitter client with OAuth authentication"
   []
   (let [access-token (AccessToken. *access-token* *access-secret*)
@@ -39,19 +39,19 @@
     (onTrackLimitationNotice [numberOfLimitedStatuses] ())))
 
 (defn do-sample-stream []
-  (let [stream (oauth-stream)]
+  (let [stream (oauth-stream-authorized-twitter)]
     (.addListener stream (status-listener))
     (.sample stream)))
 
 (defn do-filter-stream []
   ; We want tweets with the word tweet in them
   (let [filter-query (FilterQuery. 0 (long-array []) (into-array String ["#ChristianChavezNoRaulGil"]))
-        stream (oauth-stream)]
+        stream (oauth-stream-authorized-twitter)]
     (.addListener stream (status-listener))
     (.filter stream filter-query)))
 
 (defn link-stream []
-  (let [stream (oauth-stream)]
+  (let [stream (oauth-stream-authorized-twitter)]
     (.addListener stream (status-listener))
     (.links stream 0)))
 

@@ -5,7 +5,7 @@
             [compojure.route :as route]))
 
 (defroutes app-routes
-  (GET "/" [] "Hello HTTP!"))
+  (GET "/" [] "<html><body>Houston we have a problem<br><img src='https://earthkam.ucsd.edu/images/iss-future.jpg'></body></html>"))
 
 (defn -main
   "I don't do a whole lot."

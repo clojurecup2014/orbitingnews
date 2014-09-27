@@ -1,14 +1,16 @@
 (ns orbitingnews.core
   (:use compojure.core)
   (:use org.httpkit.server)
-  (:use org.httpkit.timer)
+  (:import [java.io ByteArrayInputStream ByteArrayOutputStream])
   (:require [org.httpkit.client :as http]
+            [org.httpkit.timer :as timer]
             [compojure.route :as route]
             [orbitingnews.config :as config]
             [orbitingnews.twitter :as twitter]
             [hiccup.core :as dom]
             [hiccup.page :as page]
-            [clojure.core.async :as async :refer :all])
+            [clojure.core.async :as async :refer :all]
+            [cognitect.transit :as transit])
   (:gen-class))
 
 (defn handler [req]
@@ -17,9 +19,14 @@
     (on-close channel (fn [status]
                         (println "channel closed, " status)))
 
-    (if (websocket? channel)
-      (println "WebSocket channel")
-      (println "HTTP channel"))
+      (loop [id 0]
+        (when (< id 10)
+          (timer/schedule-task (* id 200) ;; send a message every 200ms
+                               (let [out (ByteArrayOutputStream. 4096)
+                                     writer (transit/writer out :json)]
+                                 (transit/write writer {:msg (str "message from server #" id)})
+                                 (send! channel (.toString out) false))) ; false => don't close after send
+          (recur (inc id))))
 
     (on-receive channel (fn [data]       ; data received from client
                           ;; An optional param can pass to send!: close-after-send?

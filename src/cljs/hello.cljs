@@ -8,7 +8,7 @@
 
 (def tweets-channel (chan))
 
-(def app-state (atom {:tweets [] :tweets-count 50}))
+(def app-state (atom {:tweets [] :tweets-count 50 :tweets-received 0}))
 
 (defn log [text]
   (.log js/console text))
@@ -33,11 +33,14 @@
     (will-mount [this]
       (go (while true
             (let [tweet (<! tweets-channel)]
+              (om/transact! app :tweets-received inc)
               (om/transact! app :tweets #(take tweets-count (conj % tweet)))))))
     om/IRender
     (render [this]
-      (apply dom/div #js {:className "tweets"}
-             (om/build-all tweet (:tweets app))))))
+      (dom/div #js {:id "tweets"}
+               (dom/div nil (str "Received " (:tweets-received app) " links so far"))
+               (apply dom/div #js {:className "tweets"}
+                      (om/build-all tweet (:tweets app)))))))
 
 (om/root tweets app-state
          {:target (. js/document (getElementById "app"))})

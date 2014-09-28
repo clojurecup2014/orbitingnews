@@ -16,15 +16,15 @@
 (defonce listeners
   (atom #{}))
 
-(go (let [c (twitter/do-filter-stream)]
+(go (let [c (twitter/firehose)]
       (while true
         (let [status (<! c)
               out (ByteArrayOutputStream. 4096)
               writer (transit/writer out :json)]
           (transit/write writer {:msg (.getText status)})
-          (let [foo (.toString out)]
-            (prn (str "listeners " (count @listeners)))
-            (doall (pmap #(send! % foo false) @listeners))))))) ; false => don't close after send
+          (let [msg (.toString out)]
+            ; (prn (str "listeners " (count @listeners)))
+            (doall (pmap #(send! % msg false) @listeners))))))) ; false => don't close after send
 
 (defn handler [req]
   (with-channel req channel              ; get the channel

@@ -86,6 +86,14 @@
     (.filter stream filter-query)
     c))
 
+(defn firehose []
+  ; We want tweets with the word tweet in them
+  (let [stream (oauth-stream-authorized-twitter)
+        c (chan)]
+    (.addListener stream (status-listener c))
+    (.sample stream)
+    c))
+
 (defn user-stream []
   (let [stream (oauth-stream-authorized-twitter)]
     (.addListener stream (user-listener))

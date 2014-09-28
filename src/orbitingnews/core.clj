@@ -1,5 +1,6 @@
 (ns orbitingnews.core
   (:use compojure.core)
+  (:use ring.util.response)
   (:use org.httpkit.server)
   (:import [java.io ByteArrayInputStream ByteArrayOutputStream])
   (:require [org.httpkit.client :as http]
@@ -7,8 +8,6 @@
             [compojure.route :as route]
             [orbitingnews.config :as config]
             [orbitingnews.twitter :as twitter]
-            [hiccup.core :as dom]
-            [hiccup.page :as page]
             [clojure.core.async :as async :refer [<! >! chan go put! alts! take! filter<]]
             [cognitect.transit :as transit])
   (:gen-class))
@@ -63,26 +62,8 @@
                           ;; and false for WebSocket.  (send! channel data close-after-send?)
                           (send! channel data))))) ; data is sent directly to the client
 
-
-(defn tweets-page
-  [tweets]
-  [:html
-   [:head
-    [:title "Houston we have a problem"]
-    (page/include-js "/js/main.js")]
-   [:body
-    [:h1 "Orbiting News"]
-    [:h2 "Houston we have a problem"]
-    [:img {:src "https://earthkam.ucsd.edu/images/iss-future.jpg" :width "20%"}]
-    [:div {:id "tweet-list"} (for [tweet tweets]
-                               [:p tweet])]]])
-
-(defn root-handler [req]
-  (let [tweets (map #(.getText %) (twitter/search "#clojurecup"))]
-    (dom/html (tweets-page tweets))))
-
 (defroutes app-routes
-  (GET "/" [] root-handler)
+  (GET "/" [] (resource-response "index.html" {:root "public"}))
   (GET "/ws" [] handler)
   (route/resources "/")
   (route/not-found "Page not found"))

@@ -30,8 +30,8 @@
       (.setOAuthAccessToken access-token))
     twitter))
 
-(defn fetch-link [status]
-  (.getExpandedURL status))
+; (defn fetch-link [status]
+;   (.getExpandedURL status))
 
 (defn handle-status [status channel]
   (go (>! channel status)))

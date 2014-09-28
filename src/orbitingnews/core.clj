@@ -9,16 +9,19 @@
             [orbitingnews.twitter :as twitter]
             [hiccup.core :as dom]
             [hiccup.page :as page]
-            [clojure.core.async :as async :refer [<! >! chan go put! alts! take!]]
+            [clojure.core.async :as async :refer [<! >! chan go put! alts! take! filter<]]
             [cognitect.transit :as transit])
   (:gen-class))
 
 (defonce listeners
   (atom #{}))
 
+(defn with-links [status]
+  (not (empty? (.getURLEntities status))))
+
 (go (let [c (twitter/firehose)]
       (while true
-        (let [status (<! c)
+        (let [status (<! (filter< with-links c))
               out (ByteArrayOutputStream. 4096)
               writer (transit/writer out :json)]
           (transit/write writer {:msg (.getText status)})

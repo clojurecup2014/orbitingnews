@@ -22,7 +22,9 @@
               out (ByteArrayOutputStream. 4096)
               writer (transit/writer out :json)]
           (transit/write writer {:msg (.getText status)})
-          (dorun (pmap #(send! % (.toString out) false)) @listeners))))) ; false => don't close after send
+          (let [foo (.toString out)]
+            (prn (str "listeners " (count @listeners)))
+            (doall (pmap #(send! % foo false) @listeners))))))) ; false => don't close after send
 
 (defn handler [req]
   (with-channel req channel              ; get the channel

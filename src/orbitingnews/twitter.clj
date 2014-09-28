@@ -29,10 +29,17 @@
       (.setOAuthAccessToken access-token))
     twitter))
 
+(defn fetch-link [status]
+  (.getExpandedURL status))
+
+(defn handle-status [status]
+  (let [urls (map fetch-link (vec (.getURLEntities status)))]
+    (when-not (empty? urls) (prn urls))))
+
 (defn status-listener []
   "Implementation of twitter4j's StatusListener interface"
   (proxy [StatusListener] []
-    (onStatus [^twitter4j.Status status] (println (.getText status)))
+    (onStatus [^twitter4j.Status status] (handle-status status))
     (onException [^java.lang.Exception e] (.printStackTrace e))
     (onDeletionNotice [^twitter4j.StatusDeletionNotice statusDeletionNotice] ())
     (onScrubGeo [userId upToStatusId] ())
@@ -41,7 +48,7 @@
 (defn user-listener []
   "Implementation of twitter4j's StatusListener interface"
   (proxy [UserStreamListener] []
-    (onStatus [^twitter4j.Status status] (println (.getText status)))
+    (onStatus [^twitter4j.Status status] (handle-status status))
     (onException [^java.lang.Exception e] (.printStackTrace e))
     (onDeletionNotice [^twitter4j.StatusDeletionNotice statusDeletionNotice] ())
     (onScrubGeo [userId upToStatusId] ())
@@ -69,7 +76,7 @@
 
 (defn do-filter-stream []
   ; We want tweets with the word tweet in them
-  (let [filter-query (FilterQuery. 0 (long-array []) (into-array String ["#ChristianChavezNoRaulGil"]))
+  (let [filter-query (FilterQuery. 0 (long-array []) (into-array String ["#MissBrasil"]))
         stream (oauth-stream-authorized-twitter)]
     (.addListener stream (status-listener))
     (.filter stream filter-query)))

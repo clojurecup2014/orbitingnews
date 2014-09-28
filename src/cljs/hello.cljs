@@ -14,13 +14,10 @@
 
 (def tweets-channel (chan))
 
-(def socket (js/WebSocket. "ws://localhost:8080/ws"))
+(def socket (js/WebSocket. (str "ws://" (.-hostname (.-location js/document)) ":" (.-port (.-location js/document)) "/ws")))
 
 (set! socket.onmessage (fn [e] (go (>! tweets-channel (:msg (t/read r e.data))))))
 (set! socket.onerror (fn [e] (go (>! tweets-channel (:msg (t/read r e.data))))))
-
-(.setTimeout js/window (fn []
-                         (.close socket)) 3000)
 
 (defn prepend-tweet [tweet]
   (dom/prepend! (dom/by-id "tweet-list") (hiccups/html [:p tweet])))

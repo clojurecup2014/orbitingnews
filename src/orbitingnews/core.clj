@@ -9,7 +9,8 @@
             [orbitingnews.config :as config]
             [orbitingnews.twitter :as twitter]
             [clojure.core.async :as async :refer [<! >! chan go put! alts! take! filter<]]
-            [cognitect.transit :as transit])
+            [cognitect.transit :as transit]
+            [net.cgrand.enlive-html :as html])
   (:gen-class))
 
 (defonce listeners
@@ -27,17 +28,27 @@
 (defn links [status]
   (map fetch-link (url-container status)))
 
+(defn fetch-title [resp]
+  (apply str (html/select (html/html-resource (:body @resp)) [:head :title first])))
+
+(defn status-filter [resp]
+  (= 200 (:status @resp)))
+
+(defn status->information [status]
+  (let [urls (links status)
+        futures (doall (map #(http/get % {:as :stream}) urls))
+        titles (vec (mapv fetch-title (filter status-filter futures)))]
+    {:text (.getText status) :urls urls :titles titles :msg (apply str titles)}))
+
 (go (let [c (twitter/firehose)]
       (while true
         (let [status (<! (filter< with-links c))
-              links (links status)
-              send-links (fn [link]
-                           (let [out (ByteArrayOutputStream. 4096)
-                                 writer (transit/writer out :json)]
-                             (transit/write writer {:msg link})
-                             (let [msg (.toString out)]
-                               (doall (pmap #(send! % msg false) @listeners)))))] ; false => don't close after send
-          (doall (map send-links links))))))
+              info (status->information status)
+              out (ByteArrayOutputStream. 4096)
+              writer (transit/writer out :json)]
+          (transit/write writer info)
+          (let [msg (.toString out)]
+            (doall (pmap #(send! % msg false) @listeners))))))) ; false => don't close after send
 
 (defn handler [req]
   (with-channel req channel              ; get the channel

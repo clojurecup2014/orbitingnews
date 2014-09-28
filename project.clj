@@ -19,7 +19,9 @@
                  [domina "1.0.3-SNAPSHOT"]
                  [hiccups "0.3.0"]
                  [om "0.7.1"]
-                 [com.facebook/react "0.11.1"]]
+                 [com.facebook/react "0.11.1"]
+                 [enlive "1.1.5"]]
+
   :cljsbuild {
     :builds [{:source-paths ["src/cljs"]
               :compiler {:output-dir "out"

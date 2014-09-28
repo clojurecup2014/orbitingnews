@@ -89,7 +89,7 @@
 (defn firehose []
   ; We want tweets with the word tweet in them
   (let [stream (oauth-stream-authorized-twitter)
-        c (chan)]
+        c (chan (sliding-buffer 50))]
     (.addListener stream (status-listener c))
     (.sample stream)
     c))

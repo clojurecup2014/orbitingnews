@@ -22,7 +22,8 @@
                  [com.facebook/react "0.11.1"]]
   :cljsbuild {
     :builds [{:source-paths ["src/cljs"]
-              :compiler {:output-to "resources/public/js/main.js"
+              :compiler {:output-dir "out"
+                         :output-to "resources/public/js/main.js"
                          :optimizations :whitespace
                          :pretty-print true}}]}
   :main orbitingnews.core

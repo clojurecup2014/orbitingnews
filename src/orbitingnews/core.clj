@@ -16,18 +16,29 @@
 (defonce listeners
   (atom #{}))
 
+(defn url-container [status]
+  (.getURLEntities status))
+
 (defn with-links [status]
-  (not (empty? (.getURLEntities status))))
+  (not (empty? (url-container status))))
+
+(defn fetch-link [container]
+  (.getExpandedURL container))
+
+(defn links [status]
+  (map fetch-link (url-container status)))
 
 (go (let [c (twitter/firehose)]
       (while true
         (let [status (<! (filter< with-links c))
+              links (links status)
               out (ByteArrayOutputStream. 4096)
-              writer (transit/writer out :json)]
-          (transit/write writer {:msg (.getText status)})
-          (let [msg (.toString out)]
-            ; (prn (str "listeners " (count @listeners)))
-            (doall (pmap #(send! % msg false) @listeners))))))) ; false => don't close after send
+              writer (transit/writer out :json)
+              send-links (fn [link]
+                             (transit/write writer {:msg link})
+                             (let [msg (.toString out)]
+                               (doall (pmap #(send! % msg false) @listeners))))] ; false => don't close after send
+          (doall (map send-links links))))))
 
 (defn handler [req]
   (with-channel req channel              ; get the channel

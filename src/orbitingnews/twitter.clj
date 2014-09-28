@@ -1,5 +1,6 @@
 (ns orbitingnews.twitter
-  (:require [orbitingnews.config :as config])
+  (:require [orbitingnews.config :as config]
+            [clojure.core.async :as async :refer [<! >! chan go put! alts! take!]])
   (:import [twitter4j TwitterFactory TwitterStreamFactory StatusListener UserStreamListener Query QueryResult FilterQuery]
            [twitter4j.auth AccessToken])
   (:gen-class))
@@ -32,14 +33,16 @@
 (defn fetch-link [status]
   (.getExpandedURL status))
 
-(defn handle-status [status]
-  (let [urls (map fetch-link (vec (.getURLEntities status)))]
-    (when-not (empty? urls) (prn urls))))
+(defn handle-status [status channel]
+  (go (>! channel status)))
+  ; (comment
+  ;  (let [urls (map fetch-link (vec (.getURLEntities status)))]
+  ;    (when-not (empty? urls) (prn urls)))))
 
-(defn status-listener []
+(defn status-listener [channel]
   "Implementation of twitter4j's StatusListener interface"
   (proxy [StatusListener] []
-    (onStatus [^twitter4j.Status status] (handle-status status))
+    (onStatus [^twitter4j.Status status] (handle-status status channel))
     (onException [^java.lang.Exception e] (.printStackTrace e))
     (onDeletionNotice [^twitter4j.StatusDeletionNotice statusDeletionNotice] ())
     (onScrubGeo [userId upToStatusId] ())
@@ -77,9 +80,11 @@
 (defn do-filter-stream []
   ; We want tweets with the word tweet in them
   (let [filter-query (FilterQuery. 0 (long-array []) (into-array String ["#MissBrasil"]))
-        stream (oauth-stream-authorized-twitter)]
-    (.addListener stream (status-listener))
-    (.filter stream filter-query)))
+        stream (oauth-stream-authorized-twitter)
+        c (chan)]
+    (.addListener stream (status-listener c))
+    (.filter stream filter-query)
+    c))
 
 (defn user-stream []
   (let [stream (oauth-stream-authorized-twitter)]

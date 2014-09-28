@@ -19,14 +19,22 @@
     (on-close channel (fn [status]
                         (println "channel closed, " status)))
 
-      (loop [id 0]
-        (when (< id 10)
-          (timer/schedule-task (* id 200) ;; send a message every 200ms
-                               (let [out (ByteArrayOutputStream. 4096)
-                                     writer (transit/writer out :json)]
-                                 (transit/write writer {:msg (str "message from server #" id)})
-                                 (send! channel (.toString out) false))) ; false => don't close after send
-          (recur (inc id))))
+    (go (let [c (twitter/do-filter-stream)]
+          (while true
+            (let [status (<! c)
+                  out (ByteArrayOutputStream. 4096)
+                  writer (transit/writer out :json)]
+              (transit/write writer {:msg (.getText status)})
+              (send! channel (.toString out) false))))) ; false => don't close after send
+
+;       (loop [id 0]
+;         (when (< id 10)
+;           (timer/schedule-task (* id 200) ;; send a message every 200ms
+;                                (let [out (ByteArrayOutputStream. 4096)
+;                                      writer (transit/writer out :json)]
+;                                  (transit/write writer {:msg (str "message from server #" id)})
+;                                  (send! channel (.toString out) false))) ; false => don't close after send
+;           (recur (inc id))))
 
     (on-receive channel (fn [data]       ; data received from client
                           ;; An optional param can pass to send!: close-after-send?

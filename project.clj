@@ -15,7 +15,9 @@
                  [hiccup "1.0.5"]
                  [com.cognitect/transit-clj "0.8.259"]
                  [com.cognitect/transit-cljs "0.8.188"]
-                 [org.clojure/clojurescript "0.0-2356"]]
+                 [org.clojure/clojurescript "0.0-2356"]
+                 [domina "1.0.3-SNAPSHOT"]
+                 [hiccups "0.3.0"]]
   :cljsbuild {
     :builds [{:source-paths ["src/cljs"]
               :compiler {:output-to "resources/public/js/main.js"

@@ -1,7 +1,10 @@
 (ns example.hello
   (:require [cognitect.transit :as t]
-            [cljs.core.async :refer [<! >! chan]])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
+            [cljs.core.async :refer [<! >! chan]]
+            [domina :as dom]
+            [hiccups.runtime :as hiccupsrt])
+  (:require-macros [cljs.core.async.macros :refer [go]]
+                   [hiccups.core :as hiccups]))
 
 
 (defn log [text]
@@ -19,5 +22,8 @@
 (.setTimeout js/window (fn []
                          (.close socket)) 3000)
 
+(defn prepend-tweet [tweet]
+  (dom/prepend! (dom/by-id "tweet-list") (hiccups/html [:p tweet])))
+
 (go (while true
-      (log (<! tweets-channel))))
+      (prepend-tweet (<! tweets-channel))))

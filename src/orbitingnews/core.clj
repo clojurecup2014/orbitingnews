@@ -38,15 +38,15 @@
 (defn tweets-page
   [tweets]
   [:html
-    [:head
-      [:title "Houston we have a problem"]
-      (page/include-js "/js/main.js")]
-    [:body
-      [:h1 "Orbiting News"]
-      [:h2 "Houston we have a problem"]
-      [:img {:src "https://earthkam.ucsd.edu/images/iss-future.jpg" :width "20%"}]
-      (for [tweet tweets]
-        [:p tweet])]])
+   [:head
+    [:title "Houston we have a problem"]
+    (page/include-js "/js/main.js")]
+   [:body
+    [:h1 "Orbiting News"]
+    [:h2 "Houston we have a problem"]
+    [:img {:src "https://earthkam.ucsd.edu/images/iss-future.jpg" :width "20%"}]
+    [:div {:id "tweet-list"} (for [tweet tweets]
+                               [:p tweet])]]])
 
 (defn root-handler [req]
   (let [tweets (map #(.getText %) (twitter/search "#clojurecup"))]

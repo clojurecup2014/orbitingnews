@@ -31,12 +31,12 @@
       (while true
         (let [status (<! (filter< with-links c))
               links (links status)
-              out (ByteArrayOutputStream. 4096)
-              writer (transit/writer out :json)
               send-links (fn [link]
+                           (let [out (ByteArrayOutputStream. 4096)
+                                 writer (transit/writer out :json)]
                              (transit/write writer {:msg link})
                              (let [msg (.toString out)]
-                               (doall (pmap #(send! % msg false) @listeners))))] ; false => don't close after send
+                               (doall (pmap #(send! % msg false) @listeners)))))] ; false => don't close after send
           (doall (map send-links links))))))
 
 (defn handler [req]

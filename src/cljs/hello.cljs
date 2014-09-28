@@ -20,11 +20,12 @@
 (set! socket.onmessage (fn [e] (go (>! tweets-channel (t/read r e.data)))))
 (set! socket.onerror (fn [e] (go (>! tweets-channel (t/read r e.data)))))
 
-(defn tweet [tweet owner]
+(defn tweet [{:keys [msg]} owner]
   (reify
     om/IRender
     (render [this]
-      (dom/div #js {:className "tweet"} (:msg tweet)))))
+      (dom/div #js {:className "tweet"}
+               (dom/a #js {:href msg} msg)))))
 
 (defn tweets [{:keys [tweets-count] :as app} owner]
   (reify

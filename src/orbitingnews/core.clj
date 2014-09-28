@@ -13,19 +13,24 @@
             [cognitect.transit :as transit])
   (:gen-class))
 
+(defonce listeners
+  (atom #{}))
+
+(go (let [c (twitter/do-filter-stream)]
+      (while true
+        (let [status (<! c)
+              out (ByteArrayOutputStream. 4096)
+              writer (transit/writer out :json)]
+          (transit/write writer {:msg (.getText status)})
+          (dorun (pmap #(send! % (.toString out) false)) @listeners))))) ; false => don't close after send
+
 (defn handler [req]
   (with-channel req channel              ; get the channel
     ;; communicate with client using method defined above
     (on-close channel (fn [status]
-                        (println "channel closed, " status)))
+                        (swap! listeners disj channel)))
 
-    (go (let [c (twitter/do-filter-stream)]
-          (while true
-            (let [status (<! c)
-                  out (ByteArrayOutputStream. 4096)
-                  writer (transit/writer out :json)]
-              (transit/write writer {:msg (.getText status)})
-              (send! channel (.toString out) false))))) ; false => don't close after send
+    (swap! listeners conj channel)
 
 ;       (loop [id 0]
 ;         (when (< id 10)
